@@ -35,7 +35,6 @@ where
 fn quicksort_test() {
     for _ in 0..1000 {
         let mut test_nums: [u64; 8] = rand::random();
-        println!("{:?}", test_nums);
         let mut test_nums2 = test_nums.clone();
         quicksort(&mut test_nums);
         test_nums2.sort();
