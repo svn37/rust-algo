@@ -19,7 +19,7 @@ where
     T: Ord,
     F: Fn(&T, &T) -> Ordering,
 {
-    for i in 0..arr.len() {
+    for i in 1..arr.len() {
         for j in (1..=i).rev() {
             if cmp(&arr[j], &arr[j - 1]) == Less {
                 arr.swap(j, j - 1)
