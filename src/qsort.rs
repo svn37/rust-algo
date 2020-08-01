@@ -41,8 +41,10 @@ fn quicksort_test() {
     for _ in 0..1000 {
         let mut test_arr: [u64; 8] = rand::random();
         let mut test_arr2 = test_arr.clone();
+
         quicksort(&mut test_arr, &(|a, b| a.cmp(b)));
         test_arr2.sort();
+
         assert_eq!(test_arr, test_arr2);
     }
 
