@@ -38,23 +38,15 @@ where
 
 #[test]
 fn quicksort_test() {
-    for _ in 0..1000 {
-        let mut test_arr: [u64; 8] = rand::random();
-        let mut test_arr2 = test_arr.clone();
+    use crate::utils::test_suite;
 
-        quicksort(&mut test_arr, &(|a, b| a.cmp(b)));
-        test_arr2.sort();
+    test_suite(|arr: &mut [u64], cmp| {
+        quicksort(arr, &cmp);
+        arr.to_vec()
+    });
 
-        assert_eq!(test_arr, test_arr2);
-    }
-
-    for _ in 0..1000 {
-        let mut test_arr: [u64; 8] = rand::random();
-        let mut test_arr2 = test_arr.clone();
-
-        quicksort(&mut test_arr, &(|a, b| b.cmp(a)));
-        test_arr2.sort_by(|a, b| b.cmp(a));
-
-        assert_eq!(test_arr, test_arr2);
-    }
+    test_suite(|arr: &mut [u64], cmp| {
+        quicksort(arr, &cmp);
+        arr.to_vec()
+    });
 }
