@@ -47,6 +47,6 @@ where
 fn mergesort_test() {
     use crate::utils::test_suite;
 
-    test_suite(|arr: &mut [u64], cmp| mergesort(arr, &cmp));
-    test_suite(|arr: &mut [u64], cmp| mergesort(arr, &cmp));
+    test_suite::<u64, 8>(&(|arr, cmp| mergesort(arr, &cmp)));
+    test_suite::<u64, 8>(&(|arr, cmp| mergesort(arr, &cmp)));
 }

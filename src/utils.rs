@@ -2,10 +2,12 @@ use rand::distributions::{Distribution, Standard};
 use std::cmp::Ordering;
 use std::fmt::Debug;
 
-pub fn test_suite<T>(sort_fn: impl Fn(&mut [T], Box<dyn Fn(&T, &T) -> Ordering>) -> Vec<T>)
+type CompareFunc<T> = Box<dyn Fn(&T, &T) -> Ordering>;
+
+pub fn test_suite<T, const N: usize>(sort_fn: &dyn Fn(&mut [T], CompareFunc<T>) -> Vec<T>)
 where
     T: Ord + Clone + Debug,
-    Standard: Distribution<[T; 8]>,
+    Standard: Distribution<[T; N]>,
 {
     for _ in 0..1000 {
         let mut test_arr = rand::random();
