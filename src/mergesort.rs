@@ -1,20 +1,30 @@
+use std::cmp::Ordering::{self, Less};
+
 // Simplest possible merge sort implementation
-pub fn mergesort<T: Ord + Copy + Clone>(arr: &[T]) -> Vec<T> {
+pub fn mergesort<T, F>(arr: &[T], cmp: &F) -> Vec<T>
+where
+    T: Ord + Copy + Clone,
+    F: Fn(&T, &T) -> Ordering,
+{
     if arr.len() < 2 {
         return arr.to_vec();
     }
     let middle = arr.len() / 2;
-    let left = mergesort(&arr[..middle]);
-    let right = mergesort(&arr[middle..]);
-    mergesort_helper(left, right)
+    let left = mergesort(&arr[..middle], cmp);
+    let right = mergesort(&arr[middle..], cmp);
+    mergesort_helper(left, right, cmp)
 }
 
-fn mergesort_helper<T: Ord + Copy + Clone>(left: Vec<T>, right: Vec<T>) -> Vec<T> {
+fn mergesort_helper<T, F>(left: Vec<T>, right: Vec<T>, cmp: &F) -> Vec<T>
+where
+    T: Ord + Copy + Clone,
+    F: Fn(&T, &T) -> Ordering,
+{
     let mut result = Vec::with_capacity(left.len() + right.len());
 
     let (mut i, mut j) = (0, 0);
     while i < left.len() && j < right.len() {
-        if left[i] < right[j] {
+        if cmp(&left[i], &right[j]) == Less {
             result.push(left[i]);
             i += 1;
         } else {
@@ -39,7 +49,7 @@ fn mergesort_test() {
         let test_nums: [u64; 8] = rand::random();
         let mut test_nums2 = test_nums.clone();
 
-        let test_nums = mergesort(&test_nums);
+        let test_nums = mergesort(&test_nums, &(|a, b| a.cmp(b)));
         test_nums2.sort();
 
         assert_eq!(test_nums, test_nums2);
