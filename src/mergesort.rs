@@ -46,12 +46,22 @@ where
 #[test]
 fn mergesort_test() {
     for _ in 0..1000 {
-        let test_nums: [u64; 8] = rand::random();
-        let mut test_nums2 = test_nums.clone();
+        let test_arr: [u64; 8] = rand::random();
+        let mut test_arr2 = test_arr.clone();
 
-        let test_nums = mergesort(&test_nums, &(|a, b| a.cmp(b)));
-        test_nums2.sort();
+        let test_arr = mergesort(&test_arr, &(|a, b| a.cmp(b)));
+        test_arr2.sort();
 
-        assert_eq!(test_nums, test_nums2);
+        assert_eq!(test_arr, test_arr2);
+    }
+
+    for _ in 0..1000 {
+        let test_arr: [u64; 8] = rand::random();
+        let mut test_arr2 = test_arr.clone();
+
+        let test_arr = mergesort(&test_arr, &(|a, b| b.cmp(a)));
+        test_arr2.sort_by(|a, b| b.cmp(a));
+
+        assert_eq!(test_arr, test_arr2);
     }
 }
