@@ -44,9 +44,4 @@ fn quicksort_test() {
         quicksort(arr, &cmp);
         arr.to_vec()
     });
-
-    test_suite(|arr: &mut [u64], cmp| {
-        quicksort(arr, &cmp);
-        arr.to_vec()
-    });
 }

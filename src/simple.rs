@@ -54,11 +54,6 @@ fn bubblesort_test() {
         bubble_sort(arr, &cmp);
         arr.to_vec()
     });
-
-    test_suite(|arr: &mut [u64], cmp| {
-        bubble_sort(arr, &cmp);
-        arr.to_vec()
-    });
 }
 
 #[test]
@@ -69,21 +64,11 @@ fn insertionsort_test() {
         insertion_sort(arr, &cmp);
         arr.to_vec()
     });
-
-    test_suite(|arr: &mut [u64], cmp| {
-        insertion_sort(arr, &cmp);
-        arr.to_vec()
-    });
 }
 
 #[test]
 fn selectionsort_test() {
     use crate::utils::test_suite;
-
-    test_suite(|arr: &mut [u64], cmp| {
-        selection_sort(arr, &cmp);
-        arr.to_vec()
-    });
 
     test_suite(|arr: &mut [u64], cmp| {
         selection_sort(arr, &cmp);

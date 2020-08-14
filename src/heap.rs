@@ -69,9 +69,4 @@ fn heapsort_test() {
         heapsort(arr, &cmp);
         arr.to_vec()
     });
-
-    test_suite(|arr: &mut [u64], cmp| {
-        heapsort(arr, &cmp);
-        arr.to_vec()
-    });
 }
