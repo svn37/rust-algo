@@ -1,6 +1,6 @@
 use rand::distributions::{Distribution, Uniform};
 use rand::rngs::ThreadRng;
-use std::cmp::Ordering::{self, Less};
+use std::cmp::Ordering;
 
 // Lomuto partition scheme quicksort
 pub fn quicksort<T, F>(arr: &mut [T], cmp: &F)
@@ -25,7 +25,7 @@ where
 
     let mut i = 0;
     for j in 0..arr.len() {
-        if cmp(&arr[j], &arr[arr.len() - 1]) == Less {
+        if cmp(&arr[j], &arr[arr.len() - 1]) == Ordering::Less {
             arr.swap(i, j);
             i += 1;
         }

@@ -1,4 +1,4 @@
-use std::cmp::Ordering::{self, Less};
+use std::cmp::Ordering;
 
 // Simplest possible merge sort implementation
 pub fn mergesort<T, F>(arr: &[T], cmp: &F) -> Vec<T>
@@ -24,7 +24,7 @@ where
 
     let (mut i, mut j) = (0, 0);
     while i < left.len() && j < right.len() {
-        if cmp(&left[i], &right[j]) == Less {
+        if cmp(&left[i], &right[j]) == Ordering::Less {
             result.push(left[i]);
             i += 1;
         } else {
