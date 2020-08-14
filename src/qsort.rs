@@ -59,16 +59,20 @@ where
         while cmp(&arr[i], &arr[pivot]) == Ordering::Less {
             i += 1;
         }
-        while cmp(&arr[pivot], &arr[j]) == Ordering::Less {
+        while cmp(&arr[j], &arr[pivot]) == Ordering::Greater {
             j -= 1;
         }
         if i >= j {
             break;
         }
+        if arr[i] == arr[pivot] && arr[j] == arr[pivot] {
+            i += 1;
+            continue;
+        }
         arr.swap(i, j);
     }
 
-    quicksort_hoare(&mut arr[..j + 1], rng, cmp);
+    quicksort_hoare(&mut arr[..j], rng, cmp);
     quicksort_hoare(&mut arr[j + 1..], rng, cmp);
 }
 
