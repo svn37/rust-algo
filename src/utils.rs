@@ -1,31 +1,30 @@
-use rand::distributions::{Distribution, Standard};
+use rand::distributions::Standard;
+use rand::thread_rng;
+use rand::Rng;
 use std::cmp::Ordering;
-use std::fmt::Debug;
 
-pub fn test_suite<T>(sort_fn: impl Fn(&mut [T], Box<dyn Fn(&T, &T) -> Ordering>) -> Vec<T>)
-where
-    T: Ord + Clone + Debug,
-    Standard: Distribution<[T; 8]>,
-{
-    for _ in 0..1000 {
-        let mut test_arr = rand::random();
-        let mut test_arr2 = test_arr.clone();
+pub fn test_suite(sort_fn: impl Fn(&mut [i32], Box<dyn Fn(&i32, &i32) -> Ordering>) -> Vec<i32>) {
+    // generate tests like https://github.com/rust-lang/rust/blob/847ba835ce411d47364a93ddf0b4a5c0f27928a9/library/alloc/tests/slice.rs
+    let rng = thread_rng();
+    for len in (2..25).chain(500..510) {
+        for &modulus in &[5, 10, 100, 1000] {
+            for _ in 0..10 {
+                let orig: Vec<_> = rng
+                    .sample_iter::<i32, _>(&Standard)
+                    .map(|x| x % modulus)
+                    .take(len)
+                    .collect();
 
-        let cmp = |a: &T, b: &T| -> Ordering { a.cmp(b) };
-        let test_arr = sort_fn(&mut test_arr, Box::new(cmp));
-        test_arr2.sort();
+                let mut v = orig.clone();
+                let cmp = |a: &i32, b: &i32| -> Ordering { a.cmp(b) };
+                let sorted = sort_fn(&mut v, Box::new(cmp));
+                assert!(sorted.windows(2).all(|w| w[0] <= w[1]));
 
-        assert_eq!(test_arr, test_arr2);
-    }
-
-    for _ in 0..1000 {
-        let mut test_arr = rand::random();
-        let mut test_arr2 = test_arr.clone();
-
-        let cmp = |a: &T, b: &T| -> Ordering { b.cmp(a) };
-        let test_arr = sort_fn(&mut test_arr, Box::new(cmp));
-        test_arr2.sort_by(&cmp);
-
-        assert_eq!(test_arr, test_arr2);
+                let mut v = orig.clone();
+                let cmp = |a: &i32, b: &i32| -> Ordering { b.cmp(a) };
+                let sorted = sort_fn(&mut v, Box::new(cmp));
+                assert!(sorted.windows(2).all(|w| w[0] >= w[1]));
+            }
+        }
     }
 }
