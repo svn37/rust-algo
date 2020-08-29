@@ -75,18 +75,3 @@ where
     quicksort_hoare(&mut arr[..j], rng, cmp);
     quicksort_hoare(&mut arr[j + 1..], rng, cmp);
 }
-
-#[test]
-fn quicksort_test() {
-    use crate::utils::test_suite;
-
-    test_suite(|arr: &mut [i32], cmp| {
-        quicksort(arr, &cmp, PartitionScheme::Lomuto);
-        arr.to_vec()
-    });
-
-    test_suite(|arr: &mut [i32], cmp| {
-        quicksort(arr, &cmp, PartitionScheme::Hoare);
-        arr.to_vec()
-    });
-}

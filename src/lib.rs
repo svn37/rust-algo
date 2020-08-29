@@ -3,4 +3,5 @@ pub mod mergesort;
 pub mod qsort;
 pub mod simple;
 pub mod std_heap;
-pub mod utils;
+
+mod tests;

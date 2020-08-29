@@ -60,13 +60,3 @@ where
         arr[i] = elem
     }
 }
-
-#[test]
-fn std_heapsort_test() {
-    use crate::utils::test_suite;
-
-    test_suite(|arr: &mut [i32], cmp| {
-        std_heapsort(arr, &cmp);
-        arr.to_vec()
-    });
-}

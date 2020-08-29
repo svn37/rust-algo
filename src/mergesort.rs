@@ -42,10 +42,3 @@ where
     }
     result
 }
-
-#[test]
-fn mergesort_test() {
-    use crate::utils::test_suite;
-
-    test_suite(|arr: &mut [i32], cmp| mergesort(arr, &cmp));
-}

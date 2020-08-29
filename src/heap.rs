@@ -117,13 +117,3 @@ where
         *elem = heap.pop().unwrap();
     }
 }
-
-#[test]
-fn heapsort_test() {
-    use crate::utils::test_suite;
-
-    test_suite(|arr: &mut [i32], cmp| {
-        heapsort(arr, &cmp);
-        arr.to_vec()
-    });
-}
