@@ -9,7 +9,7 @@ pub enum PartitionScheme {
 
 pub fn quicksort<T, F>(arr: &mut [T], cmp: &F, scheme: PartitionScheme)
 where
-    T: Ord,
+    T: PartialOrd,
     F: Fn(&T, &T) -> Ordering,
 {
     match scheme {
@@ -20,7 +20,7 @@ where
 
 fn quicksort_lomuto<T, F>(arr: &mut [T], rng: &mut ThreadRng, cmp: &F)
 where
-    T: Ord,
+    T: PartialOrd,
     F: Fn(&T, &T) -> Ordering,
 {
     if arr.len() <= 1 {
@@ -45,7 +45,7 @@ where
 
 fn quicksort_hoare<T, F>(arr: &mut [T], rng: &mut ThreadRng, cmp: &F)
 where
-    T: Ord,
+    T: PartialOrd,
     F: Fn(&T, &T) -> Ordering,
 {
     if arr.len() <= 1 {

@@ -2,7 +2,7 @@ use std::cmp::Ordering;
 
 pub fn bubble_sort<T, F>(arr: &mut [T], cmp: &F)
 where
-    T: Ord,
+    T: PartialOrd,
     F: Fn(&T, &T) -> Ordering,
 {
     for i in 0..arr.len() {
@@ -16,7 +16,7 @@ where
 
 pub fn insertion_sort<T, F>(arr: &mut [T], cmp: &F)
 where
-    T: Ord,
+    T: PartialOrd,
     F: Fn(&T, &T) -> Ordering,
 {
     for i in 1..arr.len() {
@@ -32,7 +32,7 @@ where
 
 pub fn selection_sort<T, F>(arr: &mut [T], cmp: &F)
 where
-    T: Ord,
+    T: PartialOrd,
     F: Fn(&T, &T) -> Ordering,
 {
     for i in 0..arr.len() {

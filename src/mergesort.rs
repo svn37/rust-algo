@@ -3,7 +3,7 @@ use std::cmp::Ordering;
 // Simplest possible merge sort implementation
 pub fn mergesort<T, F>(arr: &[T], cmp: &F) -> Vec<T>
 where
-    T: Ord + Copy + Clone,
+    T: PartialOrd + Copy + Clone,
     F: Fn(&T, &T) -> Ordering,
 {
     if arr.len() < 2 {
@@ -17,7 +17,7 @@ where
 
 fn mergesort_helper<T, F>(left: Vec<T>, right: Vec<T>, cmp: &F) -> Vec<T>
 where
-    T: Ord + Copy + Clone,
+    T: PartialOrd + Copy + Clone,
     F: Fn(&T, &T) -> Ordering,
 {
     let mut result = Vec::with_capacity(left.len() + right.len());
