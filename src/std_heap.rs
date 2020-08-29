@@ -45,7 +45,7 @@ where
     }
 }
 
-pub fn heapsort<T, F>(arr: &mut [T], cmp: &F)
+pub fn std_heapsort<T, F>(arr: &mut [T], cmp: &F)
 where
     T: Ord,
     F: Fn(&T, &T) -> Ordering,
@@ -62,11 +62,11 @@ where
 }
 
 #[test]
-fn heapsort_test() {
+fn std_heapsort_test() {
     use crate::utils::test_suite;
 
     test_suite(|arr: &mut [i32], cmp| {
-        heapsort(arr, &cmp);
+        std_heapsort(arr, &cmp);
         arr.to_vec()
     });
 }

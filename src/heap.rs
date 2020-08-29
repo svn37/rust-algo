@@ -1,17 +1,24 @@
-pub struct Heap<T: PartialOrd + Clone> {
+use std::cmp::Ordering;
+
+pub struct Heap<'a, T: PartialOrd + Clone, F: Fn(&T, &T) -> Ordering> {
     values: Vec<T>,
+    cmp: &'a F,
 }
 
-impl<T: PartialOrd + Clone> Heap<T> {
-    pub fn new() -> Self {
-        Self { values: Vec::new() }
+impl<'a, T: PartialOrd + Clone, F: Fn(&T, &T) -> Ordering> Heap<'a, T, F> {
+    pub fn new(cmp: &'a F) -> Self {
+        Self {
+            values: Vec::new(),
+            cmp,
+        }
     }
 
-    pub fn from_slice(arr: &[T]) -> Self {
+    pub fn from_slice(arr: &[T], cmp: &'a F) -> Self {
         let mut heap = Self {
             values: arr.to_vec(),
+            cmp,
         };
-        if let Some(i) = Heap::<T>::parent(heap.values.len()) {
+        if let Some(i) = heap.parent(heap.values.len()) {
             for idx in (0..=i).rev() {
                 heap.heapify(idx);
             }
@@ -21,50 +28,54 @@ impl<T: PartialOrd + Clone> Heap<T> {
 
     pub fn push(&mut self, value: T) {
         self.values.push(value);
-        let mut i = self.values.len() - 1;
-        if let Some(mut parent) = Heap::<T>::parent(i) {
-            while self.values[i] < self.values[parent] {
-                self.values.swap(i, parent);
-                i = parent;
-                parent = match Heap::<T>::parent(parent) {
-                    Some(parent) => parent,
-                    None => break,
-                }
+
+        let mut idx = self.values.len() - 1;
+        while let Some(parent) = self.parent(idx) {
+            if (*self.cmp)(&self.values[idx], &self.values[parent]) == Ordering::Greater {
+                break;
             }
-        };
+            self.values.swap(idx, parent);
+            idx = parent;
+        }
     }
 
     pub fn pop(&mut self) -> Option<T> {
-        let mut value = self.values.pop()?;
-        if !self.values.is_empty() {
-            std::mem::swap(&mut value, &mut self.values[0]);
-            self.heapify(0);
-        }
-        Some(value)
+        self.values.pop().map(|mut value| {
+            if !self.values.is_empty() {
+                std::mem::swap(&mut value, &mut self.values[0]);
+                self.heapify(0);
+            }
+            value
+        })
+    }
+
+    pub fn len(&self) -> usize {
+        self.values.len()
     }
 
     pub fn empty(&self) -> bool {
         self.values.len() == 0
     }
 
-    fn heapify(&mut self, idx: usize) {
-        let left = self.left_child(idx);
-        let right = self.right_child(idx);
-
-        let mut smallest = idx;
-        if let Some(left) = left {
-            if self.values[left] < self.values[smallest] {
-                smallest = left;
+    fn heapify(&mut self, mut idx: usize) {
+        let mut min_or_max;
+        loop {
+            min_or_max = idx;
+            if let Some(left) = self.left_child(idx) {
+                if (*self.cmp)(&self.values[left], &self.values[min_or_max]) == Ordering::Less {
+                    min_or_max = left;
+                }
             }
-        }
-        if let Some(right) = right {
-            if self.values[right] < self.values[smallest] {
-                smallest = right;
+            if let Some(right) = self.right_child(idx) {
+                if (*self.cmp)(&self.values[right], &self.values[min_or_max]) == Ordering::Less {
+                    min_or_max = right;
+                }
             }
-        }
-        if smallest != idx {
-            self.values.swap(smallest, idx);
-            self.heapify(smallest)
+            if min_or_max == idx {
+                break;
+            }
+            self.values.swap(min_or_max, idx);
+            idx = min_or_max;
         }
     }
 
@@ -84,7 +95,7 @@ impl<T: PartialOrd + Clone> Heap<T> {
         Some(right_child)
     }
 
-    fn parent(idx: usize) -> Option<usize> {
+    fn parent(&self, idx: usize) -> Option<usize> {
         if idx == 0 {
             return None;
         }
@@ -96,36 +107,23 @@ impl<T: PartialOrd + Clone> Heap<T> {
     }
 }
 
-pub fn heapsort<T>(arr: &mut [T])
+pub fn heapsort<T, F>(arr: &mut [T], cmp: &F)
 where
     T: PartialOrd + Clone,
+    F: Fn(&T, &T) -> Ordering,
 {
-    let mut heap = Heap::from_slice(arr);
-    for i in 0..arr.len() {
-        arr[i] = heap.pop().unwrap();
+    let mut heap = Heap::from_slice(arr, cmp);
+    for elem in arr {
+        *elem = heap.pop().unwrap();
     }
 }
 
 #[test]
 fn heapsort_test() {
-    use rand::distributions::Standard;
-    use rand::thread_rng;
-    use rand::Rng;
+    use crate::utils::test_suite;
 
-    let rng = thread_rng();
-    for len in (2..25).chain(500..510) {
-        for &modulus in &[5, 10, 100, 1000] {
-            for _ in 0..10 {
-                let orig: Vec<_> = rng
-                    .sample_iter::<i32, _>(&Standard)
-                    .map(|x| x % modulus)
-                    .take(len)
-                    .collect();
-
-                let mut v = orig.clone();
-                heapsort(&mut v);
-                assert!(v.windows(2).all(|w| w[0] <= w[1]));
-            }
-        }
-    }
+    test_suite(|arr: &mut [i32], cmp| {
+        heapsort(arr, &cmp);
+        arr.to_vec()
+    });
 }
