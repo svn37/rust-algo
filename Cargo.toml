@@ -8,3 +8,29 @@ edition = "2018"
 
 [dependencies]
 rand = "0.7.3"
+
+[profile.dev]
+opt-level = 3
+debug = true
+debug-assertions = true
+overflow-checks = true
+
+[profile.test]
+opt-level = 3
+debug = true
+debug-assertions = true
+overflow-checks = true
+
+[profile.bench]
+opt-level = 3
+debug = true
+debug-assertions = false
+overflow-checks = false
+lto = true
+
+[profile.release]
+opt-level = 3
+debug = true
+debug-assertions = false
+overflow-checks = false
+lto = true
