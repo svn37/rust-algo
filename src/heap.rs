@@ -106,14 +106,3 @@ impl<'a, T: PartialOrd + Clone, F: Fn(&T, &T) -> Ordering> Heap<'a, T, F> {
         }
     }
 }
-
-pub fn heapsort<T, F>(arr: &mut [T], cmp: &F)
-where
-    T: PartialOrd + Clone,
-    F: Fn(&T, &T) -> Ordering,
-{
-    let mut heap = Heap::from_slice(arr, cmp);
-    for elem in arr {
-        *elem = heap.pop().unwrap();
-    }
-}

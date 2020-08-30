@@ -1,13 +1,12 @@
 use std::cmp::Ordering;
-use std::collections::BinaryHeap;
 
-struct Rev<T, F>
+pub(crate) struct Rev<T, F>
 where
     T: Eq + PartialEq,
     F: Fn(&T, &T) -> Ordering,
 {
-    elem: T,
-    cmp: F,
+    pub elem: T,
+    pub cmp: F,
 }
 
 impl<T, F> PartialEq for Rev<T, F>
@@ -19,6 +18,7 @@ where
         self.elem == other.elem
     }
 }
+
 impl<T, F> Eq for Rev<T, F>
 where
     T: Eq + PartialEq,
@@ -35,6 +35,7 @@ where
         (self.cmp)(&other.elem, &self.elem)
     }
 }
+
 impl<T, F> PartialOrd for Rev<T, F>
 where
     T: Eq + PartialEq,
@@ -42,21 +43,5 @@ where
 {
     fn partial_cmp(&self, other: &Rev<T, F>) -> Option<Ordering> {
         Some((self.cmp)(&other.elem, &self.elem))
-    }
-}
-
-pub fn std_heapsort<T, F>(arr: &mut [T], cmp: &F)
-where
-    T: Ord,
-    F: Fn(&T, &T) -> Ordering,
-{
-    let mut heap = BinaryHeap::with_capacity(arr.len());
-    for i in 0..arr.len() {
-        let elem = unsafe { std::ptr::read(&arr[i]) };
-        heap.push(Rev { elem, cmp });
-    }
-    for i in 0..arr.len() {
-        let Rev { elem, .. } = heap.pop().unwrap();
-        arr[i] = elem
     }
 }

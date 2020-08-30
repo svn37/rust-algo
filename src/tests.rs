@@ -31,7 +31,7 @@ mod tests {
 
     #[test]
     fn heapsort_test() {
-        use crate::heap::heapsort;
+        use crate::sort::heapsort;
 
         test_suite(|arr, cmp| {
             heapsort(arr, &cmp);
@@ -41,7 +41,7 @@ mod tests {
 
     #[test]
     fn std_heapsort_test() {
-        use crate::std_heap::std_heapsort;
+        use crate::sort::std_heapsort;
 
         test_suite(|arr, cmp| {
             std_heapsort(arr, &cmp);
@@ -51,14 +51,14 @@ mod tests {
 
     #[test]
     fn mergesort_test() {
-        use crate::mergesort::mergesort;
+        use crate::sort::mergesort;
 
         test_suite(|arr, cmp| mergesort(arr, &cmp));
     }
 
     #[test]
     fn quicksort_test() {
-        use crate::qsort::{quicksort, PartitionScheme};
+        use crate::sort::{quicksort, PartitionScheme};
 
         test_suite(|arr, cmp| {
             quicksort(arr, &cmp, PartitionScheme::Lomuto);
@@ -73,7 +73,7 @@ mod tests {
 
     #[test]
     fn bubblesort_test() {
-        use crate::simple::bubble_sort;
+        use crate::sort::bubble_sort;
 
         test_suite(|arr, cmp| {
             bubble_sort(arr, &cmp);
@@ -83,7 +83,7 @@ mod tests {
 
     #[test]
     fn insertionsort_test() {
-        use crate::simple::insertion_sort;
+        use crate::sort::insertion_sort;
 
         test_suite(|arr, cmp| {
             insertion_sort(arr, &cmp);
@@ -93,7 +93,7 @@ mod tests {
 
     #[test]
     fn selectionsort_test() {
-        use crate::simple::selection_sort;
+        use crate::sort::selection_sort;
 
         test_suite(|arr, cmp| {
             selection_sort(arr, &cmp);
