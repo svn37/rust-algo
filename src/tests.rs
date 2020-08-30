@@ -18,13 +18,11 @@ mod tests {
                         .collect();
 
                     let mut v = orig.clone();
-                    let cmp = |a: &i32, b: &i32| -> Ordering { a.cmp(b) };
-                    let sorted = sort_fn(&mut v, &cmp);
+                    let sorted = sort_fn(&mut v, &|a, b| a.cmp(b));
                     assert!(sorted.windows(2).all(|w| w[0] <= w[1]));
 
                     let mut v = orig.clone();
-                    let cmp = |a: &i32, b: &i32| -> Ordering { b.cmp(a) };
-                    let sorted = sort_fn(&mut v, &cmp);
+                    let sorted = sort_fn(&mut v, &|a, b| b.cmp(a));
                     assert!(sorted.windows(2).all(|w| w[0] >= w[1]));
                 }
             }
@@ -35,7 +33,7 @@ mod tests {
     fn heapsort_test() {
         use crate::heap::heapsort;
 
-        test_suite(|arr: &mut [i32], cmp| {
+        test_suite(|arr, cmp| {
             heapsort(arr, &cmp);
             arr.to_vec()
         });
@@ -45,7 +43,7 @@ mod tests {
     fn std_heapsort_test() {
         use crate::std_heap::std_heapsort;
 
-        test_suite(|arr: &mut [i32], cmp| {
+        test_suite(|arr, cmp| {
             std_heapsort(arr, &cmp);
             arr.to_vec()
         });
@@ -55,19 +53,19 @@ mod tests {
     fn mergesort_test() {
         use crate::mergesort::mergesort;
 
-        test_suite(|arr: &mut [i32], cmp| mergesort(arr, &cmp));
+        test_suite(|arr, cmp| mergesort(arr, &cmp));
     }
 
     #[test]
     fn quicksort_test() {
         use crate::qsort::{quicksort, PartitionScheme};
 
-        test_suite(|arr: &mut [i32], cmp| {
+        test_suite(|arr, cmp| {
             quicksort(arr, &cmp, PartitionScheme::Lomuto);
             arr.to_vec()
         });
 
-        test_suite(|arr: &mut [i32], cmp| {
+        test_suite(|arr, cmp| {
             quicksort(arr, &cmp, PartitionScheme::Hoare);
             arr.to_vec()
         });
@@ -77,7 +75,7 @@ mod tests {
     fn bubblesort_test() {
         use crate::simple::bubble_sort;
 
-        test_suite(|arr: &mut [i32], cmp| {
+        test_suite(|arr, cmp| {
             bubble_sort(arr, &cmp);
             arr.to_vec()
         });
@@ -87,7 +85,7 @@ mod tests {
     fn insertionsort_test() {
         use crate::simple::insertion_sort;
 
-        test_suite(|arr: &mut [i32], cmp| {
+        test_suite(|arr, cmp| {
             insertion_sort(arr, &cmp);
             arr.to_vec()
         });
@@ -97,7 +95,7 @@ mod tests {
     fn selectionsort_test() {
         use crate::simple::selection_sort;
 
-        test_suite(|arr: &mut [i32], cmp| {
+        test_suite(|arr, cmp| {
             selection_sort(arr, &cmp);
             arr.to_vec()
         });
