@@ -73,30 +73,30 @@ mod tests {
 
     #[test]
     fn bubblesort_test() {
-        use crate::sort::bubble_sort;
+        use crate::sort::bubblesort;
 
         test_suite(|arr, cmp| {
-            bubble_sort(arr, &cmp);
+            bubblesort(arr, &cmp);
             arr.to_vec()
         });
     }
 
     #[test]
     fn insertionsort_test() {
-        use crate::sort::insertion_sort;
+        use crate::sort::insertionsort;
 
         test_suite(|arr, cmp| {
-            insertion_sort(arr, &cmp);
+            insertionsort(arr, &cmp);
             arr.to_vec()
         });
     }
 
     #[test]
     fn selectionsort_test() {
-        use crate::sort::selection_sort;
+        use crate::sort::selectionsort;
 
         test_suite(|arr, cmp| {
-            selection_sort(arr, &cmp);
+            selectionsort(arr, &cmp);
             arr.to_vec()
         });
     }

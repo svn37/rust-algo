@@ -157,7 +157,7 @@ where
 
 // ============ simplest sorting algorithms ============
 
-pub fn bubble_sort<T, F>(arr: &mut [T], cmp: &F)
+pub fn bubblesort<T, F>(arr: &mut [T], cmp: &F)
 where
     T: PartialOrd,
     F: Fn(&T, &T) -> Ordering,
@@ -171,7 +171,7 @@ where
     }
 }
 
-pub fn insertion_sort<T, F>(arr: &mut [T], cmp: &F)
+pub fn insertionsort<T, F>(arr: &mut [T], cmp: &F)
 where
     T: PartialOrd,
     F: Fn(&T, &T) -> Ordering,
@@ -187,7 +187,7 @@ where
     }
 }
 
-pub fn selection_sort<T, F>(arr: &mut [T], cmp: &F)
+pub fn selectionsort<T, F>(arr: &mut [T], cmp: &F)
 where
     T: PartialOrd,
     F: Fn(&T, &T) -> Ordering,
