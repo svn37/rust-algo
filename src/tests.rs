@@ -100,4 +100,31 @@ mod tests {
             arr.to_vec()
         });
     }
+
+    #[test]
+    fn heap_test() {
+        use crate::heap::BinaryHeap;
+        use rand::seq::SliceRandom;
+
+        let mut minheap = BinaryHeap::<u64, _>::new(&|a, b| a.cmp(b));
+        let mut values = (0..1000).collect::<Vec<_>>();
+        values.shuffle(&mut rand::thread_rng());
+        for &elem in &values {
+            minheap.push(elem);
+        }
+        for (i, elem) in minheap.into_iter().enumerate() {
+            values[i] = elem;
+        }
+        assert!(values.windows(2).all(|w| w[0] <= w[1]));
+
+        let mut maxheap = BinaryHeap::<u64, _>::new(&|a, b| b.cmp(a));
+        values.shuffle(&mut rand::thread_rng());
+        for &elem in &values {
+            maxheap.push(elem);
+        }
+        for (i, elem) in maxheap.into_iter().enumerate() {
+            values[i] = elem;
+        }
+        assert!(values.windows(2).all(|w| w[0] >= w[1]));
+    }
 }

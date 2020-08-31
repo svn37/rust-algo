@@ -1,9 +1,9 @@
 use rand::distributions::{Distribution, Uniform};
 use rand::rngs::ThreadRng;
 use std::cmp::Ordering;
-use std::collections::BinaryHeap;
+use std::collections::BinaryHeap as StdBinaryHeap;
 
-use crate::heap::Heap;
+use crate::heap::BinaryHeap;
 use crate::utils::Rev;
 
 // ============ quicksort ============
@@ -133,10 +133,10 @@ where
     T: PartialOrd + Clone,
     F: Fn(&T, &T) -> Ordering,
 {
-    let mut heap = Heap::from_slice(arr, cmp);
-    for elem in arr {
-        *elem = heap.pop().unwrap();
-    }
+    BinaryHeap::from_vec(arr.to_vec(), cmp)
+        .into_iter()
+        .enumerate()
+        .for_each(|(i, elem)| arr[i] = elem)
 }
 
 pub fn std_heapsort<T, F>(arr: &mut [T], cmp: &F)
@@ -144,7 +144,7 @@ where
     T: Ord,
     F: Fn(&T, &T) -> Ordering,
 {
-    let mut heap = BinaryHeap::with_capacity(arr.len());
+    let mut heap = StdBinaryHeap::with_capacity(arr.len());
     for i in 0..arr.len() {
         let elem = unsafe { std::ptr::read(&arr[i]) };
         heap.push(Rev { elem, cmp });

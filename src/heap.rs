@@ -1,11 +1,20 @@
 use std::cmp::Ordering;
+use std::fmt::{self, Debug};
 
-pub struct Heap<'a, T: PartialOrd + Clone, F: Fn(&T, &T) -> Ordering> {
+pub struct BinaryHeap<'a, T, F>
+where
+    T: PartialOrd,
+    F: Fn(&T, &T) -> Ordering,
+{
     values: Vec<T>,
     cmp: &'a F,
 }
 
-impl<'a, T: PartialOrd + Clone, F: Fn(&T, &T) -> Ordering> Heap<'a, T, F> {
+impl<'a, T, F> BinaryHeap<'a, T, F>
+where
+    T: PartialOrd,
+    F: Fn(&T, &T) -> Ordering,
+{
     pub fn new(cmp: &'a F) -> Self {
         Self {
             values: Vec::new(),
@@ -13,12 +22,9 @@ impl<'a, T: PartialOrd + Clone, F: Fn(&T, &T) -> Ordering> Heap<'a, T, F> {
         }
     }
 
-    pub fn from_slice(arr: &[T], cmp: &'a F) -> Self {
-        let mut heap = Self {
-            values: arr.to_vec(),
-            cmp,
-        };
-        if let Some(i) = heap.parent(heap.values.len()) {
+    pub fn from_vec(values: Vec<T>, cmp: &'a F) -> Self {
+        let mut heap = Self { values, cmp };
+        if let Some(i) = Self::parent(heap.values.len()) {
             for idx in (0..=i).rev() {
                 heap.heapify(idx);
             }
@@ -30,7 +36,7 @@ impl<'a, T: PartialOrd + Clone, F: Fn(&T, &T) -> Ordering> Heap<'a, T, F> {
         self.values.push(value);
 
         let mut idx = self.values.len() - 1;
-        while let Some(parent) = self.parent(idx) {
+        while let Some(parent) = Self::parent(idx) {
             if (*self.cmp)(&self.values[idx], &self.values[parent]) == Ordering::Greater {
                 break;
             }
@@ -95,7 +101,7 @@ impl<'a, T: PartialOrd + Clone, F: Fn(&T, &T) -> Ordering> Heap<'a, T, F> {
         Some(right_child)
     }
 
-    fn parent(&self, idx: usize) -> Option<usize> {
+    fn parent(idx: usize) -> Option<usize> {
         if idx == 0 {
             return None;
         }
@@ -104,5 +110,49 @@ impl<'a, T: PartialOrd + Clone, F: Fn(&T, &T) -> Ordering> Heap<'a, T, F> {
         } else {
             Some((idx - 1) / 2)
         }
+    }
+}
+
+impl<'a, T, F> Debug for BinaryHeap<'a, T, F>
+where
+    T: PartialOrd + Debug,
+    F: Fn(&T, &T) -> Ordering,
+{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:?}", self.values)
+    }
+}
+
+impl<'a, T, F> IntoIterator for &'a mut BinaryHeap<'a, T, F>
+where
+    T: PartialOrd,
+    F: Fn(&T, &T) -> Ordering,
+{
+    type Item = T;
+    type IntoIter = Iter<'a, T, F>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        Iter { inner: self }
+    }
+}
+
+pub struct Iter<'a, T, F>
+where
+    T: PartialOrd,
+    F: Fn(&T, &T) -> Ordering,
+{
+    inner: &'a mut BinaryHeap<'a, T, F>,
+}
+
+impl<'a, T, F> Iterator for Iter<'a, T, F>
+where
+    T: PartialOrd,
+    F: Fn(&T, &T) -> Ordering,
+{
+    type Item = T;
+
+    #[inline]
+    fn next(&mut self) -> Option<Self::Item> {
+        self.inner.pop()
     }
 }
