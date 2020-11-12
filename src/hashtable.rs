@@ -1,6 +1,5 @@
 use crate::prime::is_prime;
 
-use std::collections::hash_map::DefaultHasher;
 use std::fmt::{self, Debug};
 use std::hash::{Hash, Hasher};
 
@@ -136,7 +135,7 @@ impl<K: Eq + Hash, V> HashTable<K, V> {
     }
 
     fn find_index(&self, key: &K) -> usize {
-        let mut hasher = DefaultHasher::new();
+        let mut hasher = HasherDJB2::new();
         key.hash(&mut hasher);
         (hasher.finish() % self.buckets.len() as u64) as usize
     }
@@ -218,5 +217,32 @@ where
             Some(Entry::Item(key, value)) => other.get(key).map_or(false, |v| *value == *v),
             _ => true,
         })
+    }
+}
+
+pub struct HasherDJB2 {
+    hash: u64,
+}
+
+// D. J. Bernstein hash function
+// http://cr.yp.to/cdb/cdb.txt
+impl HasherDJB2 {
+    #[inline]
+    pub fn new() -> HasherDJB2 {
+        HasherDJB2 { hash: 5381u64 }
+    }
+}
+
+impl Hasher for HasherDJB2 {
+    fn write(&mut self, bytes: &[u8]) {
+        for byte in bytes {
+            self.hash = (self.hash << 5)
+                .wrapping_add(self.hash)
+                .wrapping_add(*byte as u64);
+        }
+    }
+
+    fn finish(&self) -> u64 {
+        self.hash
     }
 }
