@@ -110,7 +110,6 @@ impl<T: Eq + Hash> Graph<T> {
         }
     }
 
-    // The algorithm requires positive edge lengths and will break with negative edge lengths
     pub fn dijkstra(&self, source_node: NodeIndex, edge_weights: &[u64]) -> Vec<u64> {
         // distances from node to source
         let mut dist_vec = vec![u64::max_value(); self.nodes.len()];
@@ -132,6 +131,52 @@ impl<T: Eq + Hash> Graph<T> {
             }
         }
         dist_vec
+    }
+
+    pub fn dijkstra_with_path(
+        &self,
+        source_node: NodeIndex,
+        target_node: NodeIndex,
+        edge_weights: &[u64],
+    ) -> Option<Vec<NodeIndex>> {
+        // distances from node to source
+        let mut dist_vec = vec![u64::max_value(); self.nodes.len()];
+        let mut parent = vec![None; self.nodes.len()];
+        let mut heap = BinaryHeap::new();
+
+        dist_vec[source_node] = 0;
+        heap.push((Reverse(dist_vec[source_node]), source_node));
+
+        while let Some((Reverse(dist), cur_node)) = heap.pop() {
+            if cur_node == target_node {
+                return Self::reverse_path(&parent, target_node);
+            }
+            if dist_vec[cur_node] == dist {
+                for (node, edge) in self.successors(cur_node) {
+                    // Calculate Dijkstra's greedy score
+                    let tent_dist = dist + edge_weights[edge];
+                    if tent_dist < dist_vec[node] {
+                        parent[node] = Some(cur_node);
+                        dist_vec[node] = tent_dist;
+                        heap.push((Reverse(tent_dist), node));
+                    }
+                }
+            }
+        }
+        None
+    }
+
+    fn reverse_path(
+        parent: &[Option<NodeIndex>],
+        target_node: NodeIndex,
+    ) -> Option<Vec<NodeIndex>> {
+        let mut path = vec![target_node];
+        let mut cur_node = target_node;
+        while let Some(parent) = parent[cur_node] {
+            path.push(parent);
+            cur_node = parent;
+        }
+        return Some(path.iter().rev().copied().collect());
     }
 }
 
@@ -215,5 +260,58 @@ mod tests {
         }
 
         assert_eq!(vec![0, 8, 3, 4, 7, 6, 12, 5], graph.dijkstra(a, &weights))
+    }
+
+    #[test]
+    fn graph_dijkstra_with_path() {
+        let mut graph = Graph::new();
+
+        let a = graph.add_node("A");
+        let b = graph.add_node("B");
+        let c = graph.add_node("C");
+        let d = graph.add_node("D");
+        let e = graph.add_node("E");
+        let f = graph.add_node("F");
+        let g = graph.add_node("G");
+        let h = graph.add_node("H");
+
+        let mut weights = Vec::new();
+        for (nodes, weight) in vec![
+            ((a, b), 1),
+            ((b, c), 2),
+            ((c, d), 3),
+            ((d, e), 4),
+            ((f, b), 15),
+            ((f, e), 2),
+            ((f, g), 3),
+            ((g, h), 2),
+            ((h, e), 1),
+        ] {
+            graph.add_undirected_edge(nodes.0, nodes.1);
+            weights.append(&mut vec![weight, weight]);
+        }
+
+        assert_eq!(
+            Some(vec![a, b, c, d, e, h, g]),
+            graph.dijkstra_with_path(a, g, &weights)
+        )
+    }
+
+    #[test]
+    fn graph_dijkstra_no_route() {
+        let mut graph = Graph::new();
+
+        let a = graph.add_node("A");
+        let b = graph.add_node("B");
+        let c = graph.add_node("C");
+        let d = graph.add_node("D");
+
+        let mut weights = Vec::new();
+        for (nodes, weight) in vec![((a, b), 1), ((b, c), 2), ((c, a), 3)] {
+            graph.add_undirected_edge(nodes.0, nodes.1);
+            weights.append(&mut vec![weight, weight]);
+        }
+
+        assert_eq!(None, graph.dijkstra_with_path(a, d, &weights))
     }
 }
