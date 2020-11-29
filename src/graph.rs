@@ -1,7 +1,8 @@
 // Implementation from this post:
 // https://smallcultfollowing.com/babysteps/blog/2015/04/06/modeling-graphs-in-rust-using-vector-indices/
 
-use std::collections::{HashSet, VecDeque};
+use std::cmp::Reverse;
+use std::collections::{BinaryHeap, HashSet, VecDeque};
 use std::hash::Hash;
 
 pub type NodeIndex = usize;
@@ -49,6 +50,11 @@ impl<T: Eq + Hash> Graph<T> {
         node_data.first_outgoing_edge = Some(edge_index);
     }
 
+    pub fn add_undirected_edge(&mut self, source: NodeIndex, target: NodeIndex) {
+        self.add_edge(source, target);
+        self.add_edge(target, source);
+    }
+
     pub fn successors(&self, source: NodeIndex) -> Successors<T> {
         let first_outgoing_edge = self.nodes[source].first_outgoing_edge;
         Successors {
@@ -76,7 +82,7 @@ impl<T: Eq + Hash> Graph<T> {
             f(&self.get_value(node));
             seen.insert(node);
 
-            for n in self.successors(node) {
+            for (n, _) in self.successors(node) {
                 stack.push(n)
             }
         }
@@ -98,10 +104,34 @@ impl<T: Eq + Hash> Graph<T> {
             seen.insert(node);
 
             let successors: Vec<_> = self.successors(node).collect();
-            for &n in successors.iter().rev() {
+            for &(n, _) in successors.iter().rev() {
                 queue.push_back(n);
             }
         }
+    }
+
+    // The algorithm requires positive edge lengths and will break with negative edge lengths
+    pub fn dijkstra(&self, source_node: NodeIndex, edge_weights: &[u64]) -> Vec<u64> {
+        // distances from node to source
+        let mut dist_vec = vec![u64::max_value(); self.nodes.len()];
+        dist_vec[source_node] = 0;
+
+        let mut heap = BinaryHeap::new();
+        heap.push((Reverse(dist_vec[source_node]), source_node));
+
+        while let Some((Reverse(dist), cur_node)) = heap.pop() {
+            if dist_vec[cur_node] == dist {
+                for (node, edge) in self.successors(cur_node) {
+                    // Calculate Dijkstra's greedy score
+                    let tent_dist = dist + edge_weights[edge];
+                    if tent_dist < dist_vec[node] {
+                        dist_vec[node] = tent_dist;
+                        heap.push((Reverse(tent_dist), node));
+                    }
+                }
+            }
+        }
+        dist_vec
     }
 }
 
@@ -111,13 +141,13 @@ pub struct Successors<'a, T: Eq + Hash> {
 }
 
 impl<'a, T: Eq + Hash> Iterator for Successors<'a, T> {
-    type Item = NodeIndex;
+    type Item = (NodeIndex, EdgeIndex);
 
     fn next(&mut self) -> Option<Self::Item> {
         self.current_edge_index.map(|edge_num| {
             let edge = &self.graph.edges[edge_num];
             self.current_edge_index = edge.next_outgoing_edge;
-            edge.target
+            (edge.target, edge_num)
         })
     }
 }
@@ -127,7 +157,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn graph_indices_traverse() {
+    fn graph_traverse() {
         let mut graph = Graph::new();
 
         let a = graph.add_node("A");
@@ -152,5 +182,38 @@ mod tests {
         let mut visited_nodes = Vec::new();
         graph.bfs(a, &mut |&val| visited_nodes.push(val));
         assert_eq!(vec!["A", "B", "C", "D", "E", "F"], visited_nodes);
+    }
+
+    #[test]
+    fn graph_dijkstra() {
+        let mut graph = Graph::new();
+
+        let a = graph.add_node("A");
+        let b = graph.add_node("B");
+        let c = graph.add_node("C");
+        let d = graph.add_node("D");
+        let e = graph.add_node("E");
+        let f = graph.add_node("F");
+        let g = graph.add_node("G");
+        let h = graph.add_node("H");
+
+        let mut weights = Vec::new();
+        for (nodes, weight) in vec![
+            ((a, b), 8),
+            ((a, c), 3),
+            ((b, e), 3),
+            ((c, e), 4),
+            ((c, d), 1),
+            ((e, f), 2),
+            ((f, h), 1),
+            ((f, g), 7),
+            ((b, g), 4),
+            ((a, h), 5),
+        ] {
+            graph.add_undirected_edge(nodes.0, nodes.1);
+            weights.append(&mut vec![weight, weight]);
+        }
+
+        assert_eq!(vec![0, 8, 3, 4, 7, 6, 12, 5], graph.dijkstra(a, &weights))
     }
 }
