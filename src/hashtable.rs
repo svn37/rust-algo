@@ -19,8 +19,8 @@ enum Entry<K: Eq + Hash, V> {
     Tombstone,
 }
 
-impl<K: Eq + Hash, V> HashTable<K, V> {
-    pub fn new() -> Self {
+impl<K: Eq + Hash, V> Default for HashTable<K, V> {
+    fn default() -> Self {
         let mut m = Self {
             buckets: Vec::new(),
             items: 0,
@@ -28,7 +28,9 @@ impl<K: Eq + Hash, V> HashTable<K, V> {
         m.resize(INITIAL_BASE_SIZE);
         m
     }
+}
 
+impl<K: Eq + Hash, V> HashTable<K, V> {
     pub fn insert(&mut self, key: K, value: V) {
         // if load is above 0.7, resize
         if self.load() > 70 {
@@ -54,7 +56,7 @@ impl<K: Eq + Hash, V> HashTable<K, V> {
 
     pub fn get(&self, key: &K) -> Option<&V> {
         // after map is cleared, find_index might try to calculate remainder with zero
-        if self.buckets.len() == 0 {
+        if self.buckets.is_empty() {
             return None;
         }
 
@@ -84,7 +86,7 @@ impl<K: Eq + Hash, V> HashTable<K, V> {
             self.resize_down();
         }
 
-        if self.buckets.len() == 0 {
+        if self.buckets.is_empty() {
             return;
         }
         let mut idx = self.find_index(&key);
@@ -135,7 +137,7 @@ impl<K: Eq + Hash, V> HashTable<K, V> {
     }
 
     fn find_index(&self, key: &K) -> usize {
-        let mut hasher = HasherDJB2::new();
+        let mut hasher = HasherDJB2::default();
         key.hash(&mut hasher);
         (hasher.finish() % self.buckets.len() as u64) as usize
     }
@@ -179,7 +181,7 @@ where
     K: Eq + Hash + Debug,
     V: Debug,
 {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut dm = f.debug_map();
         self.buckets
             .iter()
@@ -220,16 +222,15 @@ where
     }
 }
 
+// D. J. Bernstein hash function
+// http://cr.yp.to/cdb/cdb.txt
 pub struct HasherDJB2 {
     hash: u64,
 }
 
-// D. J. Bernstein hash function
-// http://cr.yp.to/cdb/cdb.txt
-impl HasherDJB2 {
-    #[inline]
-    pub fn new() -> HasherDJB2 {
-        HasherDJB2 { hash: 5381u64 }
+impl Default for HasherDJB2 {
+    fn default() -> Self {
+        Self { hash: 5381u64 }
     }
 }
 

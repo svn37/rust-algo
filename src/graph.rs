@@ -18,19 +18,13 @@ pub struct EdgeData {
     next_outgoing_edge: Option<EdgeIndex>,
 }
 
+#[derive(Default)]
 pub struct Graph<T: Eq + Hash> {
     nodes: Vec<NodeData<T>>,
     edges: Vec<EdgeData>,
 }
 
 impl<T: Eq + Hash> Graph<T> {
-    pub fn new() -> Self {
-        Self {
-            nodes: Vec::new(),
-            edges: Vec::new(),
-        }
-    }
-
     pub fn add_node(&mut self, value: T) -> NodeIndex {
         let index = self.nodes.len();
         self.nodes.push(NodeData {
@@ -55,7 +49,7 @@ impl<T: Eq + Hash> Graph<T> {
         self.add_edge(target, source);
     }
 
-    pub fn successors(&self, source: NodeIndex) -> Successors<T> {
+    pub fn successors(&self, source: NodeIndex) -> Successors<'_, T> {
         let first_outgoing_edge = self.nodes[source].first_outgoing_edge;
         Successors {
             graph: self,
@@ -149,7 +143,7 @@ impl<T: Eq + Hash> Graph<T> {
 
         while let Some((Reverse(dist), cur_node)) = heap.pop() {
             if cur_node == target_node {
-                return Self::reverse_path(&parent, target_node);
+                return Some(Self::reverse_path(&parent, target_node));
             }
             if dist_vec[cur_node] == dist {
                 for (node, edge) in self.successors(cur_node) {
@@ -166,17 +160,14 @@ impl<T: Eq + Hash> Graph<T> {
         None
     }
 
-    fn reverse_path(
-        parent: &[Option<NodeIndex>],
-        target_node: NodeIndex,
-    ) -> Option<Vec<NodeIndex>> {
+    fn reverse_path(parent: &[Option<NodeIndex>], target_node: NodeIndex) -> Vec<NodeIndex> {
         let mut path = vec![target_node];
         let mut cur_node = target_node;
         while let Some(parent) = parent[cur_node] {
             path.push(parent);
             cur_node = parent;
         }
-        return Some(path.iter().rev().copied().collect());
+        path.iter().rev().copied().collect()
     }
 }
 
@@ -197,13 +188,13 @@ impl<'a, T: Eq + Hash> Iterator for Successors<'a, T> {
     }
 }
 
+#[allow(clippy::many_single_char_names)]
 #[cfg(test)]
 mod tests {
     use super::*;
-
     #[test]
     fn graph_traverse() {
-        let mut graph = Graph::new();
+        let mut graph = Graph::default();
 
         let a = graph.add_node("A");
         let b = graph.add_node("B");
@@ -231,7 +222,7 @@ mod tests {
 
     #[test]
     fn graph_dijkstra() {
-        let mut graph = Graph::new();
+        let mut graph = Graph::default();
 
         let a = graph.add_node("A");
         let b = graph.add_node("B");
@@ -264,7 +255,7 @@ mod tests {
 
     #[test]
     fn graph_dijkstra_with_path() {
-        let mut graph = Graph::new();
+        let mut graph = Graph::default();
 
         let a = graph.add_node("A");
         let b = graph.add_node("B");
@@ -299,7 +290,7 @@ mod tests {
 
     #[test]
     fn graph_dijkstra_no_route() {
-        let mut graph = Graph::new();
+        let mut graph = Graph::default();
 
         let a = graph.add_node("A");
         let b = graph.add_node("B");
@@ -307,7 +298,7 @@ mod tests {
         let d = graph.add_node("D");
 
         let mut weights = Vec::new();
-        for (nodes, weight) in vec![((a, b), 1), ((b, c), 2), ((c, a), 3)] {
+        for &(nodes, weight) in &[((a, b), 1), ((b, c), 2), ((c, a), 3)] {
             graph.add_undirected_edge(nodes.0, nodes.1);
             weights.append(&mut vec![weight, weight]);
         }

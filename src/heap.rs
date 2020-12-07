@@ -59,7 +59,7 @@ where
         self.values.len()
     }
 
-    pub fn empty(&self) -> bool {
+    pub fn is_empty(&self) -> bool {
         self.values.len() == 0
     }
 
@@ -118,7 +118,7 @@ where
     T: PartialOrd + Debug,
     F: Fn(&T, &T) -> Ordering,
 {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{:?}", self.values)
     }
 }

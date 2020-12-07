@@ -59,6 +59,7 @@ impl<T: Eq + Hash> Node<T> {
     }
 }
 
+#[allow(clippy::many_single_char_names)]
 #[cfg(test)]
 mod tests {
     use super::*;

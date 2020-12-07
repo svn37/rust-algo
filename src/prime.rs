@@ -16,7 +16,7 @@ pub fn is_prime(num: usize) -> bool {
             return false;
         }
     }
-    return true;
+    true
 }
 
 #[test]

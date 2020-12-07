@@ -1,3 +1,5 @@
+#![warn(rust_2018_idioms)]
+#![allow(clippy::needless_range_loop)]
 #![feature(cell_leak)]
 
 pub mod graph;
@@ -8,5 +10,6 @@ pub mod heap;
 pub mod prime;
 pub mod sort;
 
+#[cfg(test)]
 mod tests;
 mod utils;
