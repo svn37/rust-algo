@@ -8,6 +8,7 @@ pub mod graph_ref;
 pub mod hashtable;
 pub mod heap;
 pub mod prime;
+pub mod search;
 pub mod sort;
 
 #[cfg(test)]
